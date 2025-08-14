@@ -1,3 +1,15 @@
+      subroutine stvtl(prob, nu, h, r, epsi)
+      USE TVPACK_MOD
+      integer nu
+      double precision prob, h(3), r(3), epsi
+      prob =  tvtl(nu, h, r, epsi)
+      return
+      end
+C------
+
+      MODULE TVPACK_MOD
+*
+* Fortran 90 module version of tvpack.f
 * source: http://www.sci.wsu.edu/math/faculty/genz/software/tvpack.f
 * Author:
 *          Alan Genz
@@ -5,18 +17,25 @@
 *          Washington State University
 *          Pullman, WA 99164-3113
 *          Email : alangenz@wsu.edu
-C-------
-C  A dummy subroutine has been added, required to interface R and Fortran.
-C  This is listed just after the present passage. The lines of the driver 
-C program TVTST have been commented out, and also those of function STUDNT
-C which already exists in file sadmvnt.f --  Adelchi Azzalini (2020-05-30)
-      subroutine stvtl(prob, nu, h, r, epsi)
-      integer nu
-      double precision prob, h(3), r(3), epsi, tvtl
-      prob =  tvtl(nu, h, r, epsi)
-      return
-      end
-C------
+*
+* Converted to module format - COMMON blocks replaced with module variables
+*
+* A dummy subroutine has been added, required to interface R and Fortran.
+* This is listed just after the present passage. The lines of the driver 
+* program TVTST have been commented out, and also those of function STUDNT
+* which already exists in file sadmvnt.f --  Adelchi Azzalini (2020-05-30)
+*
+      IMPLICIT NONE
+*
+* Module variables replacing COMMON /TVTMBK/
+      DOUBLE PRECISION :: H1, H2, H3, R23, RUA, RUB, AR, RUC
+      INTEGER :: NUC
+*
+* Module variables replacing COMMON /ABLK/  
+      DOUBLE PRECISION :: ERR
+      INTEGER :: IM
+*
+      CONTAINS
 *
 * This file contains a test program and functions TVTL (trivariate normal 
 * and t), BVTL (bivariate t), BVND (bivariate normal), STUDNT (univariate
@@ -120,13 +139,11 @@ C     END
 *       Pullman, WA 99164-3113
 *       Email : alangenz@wsu.edu
 *
-      EXTERNAL TVTMFN
-      INTEGER NU, NUC
-      DOUBLE PRECISION H(3), H1, H2, H3, R(3), R12, R13, R23, EPSI
+      INTEGER NU
+      DOUBLE PRECISION H(3), R(3), R12, R13, EPSI
       DOUBLE PRECISION ONE, ZRO, EPS, ZROS(3), HS(3), TVT
-      DOUBLE PRECISION RUA, RUB, AR, RUC, PT, BVTL, PHID, ADONET
+      DOUBLE PRECISION PT
       PARAMETER ( ZRO = 0, ONE = 1 )
-      COMMON /TVTMBK/ H1, H2, H3, R23, RUA, RUB, AR, RUC, NUC
       EPS = MAX( 1D-14, EPSI )
       PT = ASIN(ONE)
       NUC = NU
@@ -194,10 +211,8 @@ C     END
 *     Computes Plackett formula integrands
 *
       INTEGER NU
-      DOUBLE PRECISION X, H1, H2, H3, R23, RUA, RUB, AR, RUC
-      DOUBLE PRECISION R12, RR2, R13, RR3, R, RR, ZRO, PNTGND
+      DOUBLE PRECISION X, R12, RR2, R13, RR3, R, RR, ZRO
       PARAMETER ( ZRO = 0 )    
-      COMMON /TVTMBK/ H1, H2, H3, R23, RUA, RUB, AR, RUC, NU
       TVTMFN = 0
       CALL SINCS( RUA*X, R12, RR2 )
       CALL SINCS( RUB*X, R13, RR3 )
@@ -233,7 +248,7 @@ C     END
 *
       INTEGER NU
       DOUBLE PRECISION BA, BB, BC, RA, RB, R, RR
-      DOUBLE PRECISION DT, FT, BT, PHID, STUDNT
+      DOUBLE PRECISION DT, FT, BT, STUDNT
       PNTGND = 0
       DT = RR*( RR - ( RA - RB )**2 - 2*RA*RB*( 1 - R ) )
       IF ( DT .GT. 0 ) THEN
@@ -257,10 +272,9 @@ C     END
 *
       EXTERNAL F
       DOUBLE PRECISION F, A, B, TOL
-      INTEGER NL, I, IM, IP
+      INTEGER NL, I, IP
       PARAMETER ( NL = 100 )
-      DOUBLE PRECISION EI(NL), AI(NL), BI(NL), FI(NL), FIN, ERR, KRNRDT
-      COMMON /ABLK/ ERR, IM
+      DOUBLE PRECISION EI(NL), AI(NL), BI(NL), FI(NL), FIN
       AI(1) = A
       BI(1) = B
       ERR = 1
@@ -371,7 +385,7 @@ C     DOUBLE PRECISION FUNCTION STUDNT( NU, T )
 *                   NU -INF
 *
 C     INTEGER NU, J
-C     DOUBLE PRECISION T, ZRO, ONE, PI, PHID
+C     DOUBLE PRECISION T, ZRO, ONE, PI
 C     DOUBLE PRECISION CSSTHE, SNTHE, POLYN, TT, TS, RN
 C     PARAMETER ( ZRO = 0, ONE = 1 )
 C     PI = ACOS(-ONE)
@@ -427,7 +441,7 @@ C     END
 *
       INTEGER NU, J, HS, KS
       DOUBLE PRECISION DH, DK, R
-      DOUBLE PRECISION TPI, PI, ORS, HRK, KRH, BVT, SNU, BVND, STUDNT
+      DOUBLE PRECISION TPI, PI, ORS, HRK, KRH, BVT, SNU, STUDNT
       DOUBLE PRECISION GMPH, GMPK, XNKH, XNHK, QHRK, HKN, HPK, HKRN
       DOUBLE PRECISION BTNCKH, BTNCHK, BTPDKH, BTPDHK, ONE, EPS
       PARAMETER ( ONE = 1, EPS = 1D-15 )
@@ -585,7 +599,7 @@ C     END
       INTEGER I, IS, LG, NG
       PARAMETER ( TWOPI = 6.283185307179586D0 ) 
       DOUBLE PRECISION X(10,3), W(10,3), AS, A, B, C, D, RS, XS, BVN 
-      DOUBLE PRECISION PHID, SN, ASR, H, K, BS, HS, HK
+      DOUBLE PRECISION SN, ASR, H, K, BS, HS, HK
 *     Gauss Legendre Points and Weights, N =  6
       DATA ( W(I,1), X(I,1), I = 1,3) /
      &  0.1713244923791705D+00,-0.9324695142031522D+00,
@@ -683,4 +697,4 @@ C     END
       BVND = BVN
       END
 
-
+      END MODULE TVPACK_MOD
